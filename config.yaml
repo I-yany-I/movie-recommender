@@ -1,0 +1,132 @@
+# ============================================================
+# 多智能体协同电影推荐系统 — 全局配置
+# ============================================================
+
+project:
+  name: "MovieRecommender-Agent"
+  version: "1.0.0"
+  data_dir: "data"
+
+# ---- 数据源 ----
+data:
+  movielens:
+    name: "ml-25m"
+    url: "https://files.grouplens.org/datasets/movielens/ml-25m.zip"
+    local_path: "data/raw/ml-25m"
+  imdb:
+    base_url: "https://datasets.imdbws.com/"
+    files:
+      - "title.basics.tsv.gz"
+      - "title.principals.tsv.gz"
+      - "name.basics.tsv.gz"
+      - "title.ratings.tsv.gz"
+    local_path: "data/raw/imdb"
+  tmdb:
+    api_base: "https://api.themoviedb.org/3"
+    cache_path: "data/raw/tmdb_cache.json"
+    request_delay: 0.25  # seconds between API calls
+
+# ---- 预处理参数 ----
+preprocessing:
+  min_user_ratings: 20    # 用户最少评分次数
+  min_movie_ratings: 20   # 电影最少被评分次数
+  test_split_ratio: 0.1   # 每个用户最后10%作为测试集
+  val_split_ratio: 0.1    # 训练集中10%作验证集
+  random_seed: 42
+
+# ---- 模型参数 ----
+models:
+  popularity:
+    enabled: true
+
+  svd:
+    enabled: true
+    n_factors: 100
+    n_epochs: 20
+    lr_all: 0.005
+    reg_all: 0.02
+
+  ncf:
+    enabled: true
+    embedding_dim: 64
+    mlp_layers: [128, 64, 32, 16]
+    dropout: 0.2
+    neg_ratio: 4
+    batch_size: 1024
+    epochs: 50
+    lr: 0.001
+    early_stop_patience: 5
+
+  lightgcn:
+    enabled: true
+    embedding_dim: 64
+    n_layers: 3
+    batch_size: 2048
+    epochs: 100
+    lr: 0.001
+    reg_weight: 1.0e-4
+    early_stop_patience: 10
+
+  content_bert:
+    enabled: true
+    model_name: "paraphrase-multilingual-MiniLM-L12-v2"
+    embedding_dim: 384
+    batch_size: 64
+
+  ensemble:
+    weights:
+      popularity: 0.05
+      svd: 0.20
+      ncf: 0.25
+      lightgcn: 0.30
+      content_bert: 0.20
+
+# ---- Agent 配置 ----
+agents:
+  data_agent:
+    name: "DataAgent"
+    description: "负责多源数据下载、清洗、融合与数据质量报告"
+
+  modeling_agent:
+    name: "ModelingAgent"
+    description: "负责推荐模型的训练、评估与模型选优"
+
+  analysis_agent:
+    name: "AnalysisAgent"
+    description: "负责结果解读、可视化图表生成与分析报告撰写"
+
+  conversation_agent:
+    name: "ConversationAgent"
+    description: "负责自然语言理解、推荐调度与结果整合回复"
+
+# ---- LLM 配置 ----
+llm:
+  provider: "deepseek"
+  model: "deepseek-chat"
+  base_url: "https://api.deepseek.com"
+  temperature: 0.7
+  max_tokens: 1024
+  # API key 从环境变量 DEEPSEEK_API_KEY 或 OPENAI_API_KEY 读取
+
+# ---- 评估指标 ----
+evaluation:
+  top_k: 10
+  metrics:
+    - "rmse"
+    - "mae"
+    - "ndcg"
+    - "hit_rate"
+    - "precision"
+    - "recall"
+
+# ---- UI 配置 ----
+ui:
+  title: "🎬 智能电影推荐助手"
+  host: "127.0.0.1"
+  port: 7860
+  share: false
+
+# ---- 日志 ----
+logging:
+  level: "INFO"
+  format: "[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s"

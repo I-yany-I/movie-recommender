@@ -1,0 +1,60 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# --- 大型数据文件 (本地生成，不上传Git) ---
+data/raw/
+data/processed/
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# 但保留小结果文件供参考
+!data/processed/figures/
+!data/processed/*_metrics.json
+!data/processed/analysis_report.md
+
+# 模型文件
+*.pth
+*.pt
+*.pkl
+*.joblib
+
+# 日志
+*.log
+pipeline.log
+
+# 环境
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 临时文件
+~$*.docx
+*.tmp
+
+# Claude
+.claude/
