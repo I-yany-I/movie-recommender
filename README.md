@@ -5,8 +5,7 @@
 [![Gradio](https://img.shields.io/badge/Gradio-4.x-orange.svg)](https://www.gradio.app/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-> **人工智能与大数据辅助决策** 课程项目  
-> 探索 AI Agent 在推荐系统全流程中的应用 —— 从数据采集到对话式推荐
+> 探索 AI Agent 在推荐系统全流程中的应用 —— 从数据采集到对话式推荐，实现用自然语言获取个性化电影推荐。
 
 ---
 
@@ -217,25 +216,10 @@ pytest tests/ -v
 
 ---
 
-## 📝 引用
-
-```bibtex
-@software{movie_recommender_agents,
-  title     = {Multi-Agent Collaborative Movie Recommendation System},
-  author    = {Course Project Team},
-  year      = {2026},
-  note      = {人工智能与大数据辅助决策课程项目},
-}
-```
-
-参考文献详见项目书 `附件2_项目书_已填充.docx`。
-
----
-
 ## 📄 许可证
 
 MIT License — 详见 [LICENSE](LICENSE)
 
 ---
 
-*🎓 2026 人工智能与大数据辅助决策课程项目*
+*技术栈：Python · PyTorch · Transformers · FAISS · FastAPI · Gradio · DeepSeek API*
