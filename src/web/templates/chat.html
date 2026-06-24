@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}AI 对话推荐 — CinemaScope{% endblock %}
+
+{% block content %}
+<div class="chat-page">
+    <div class="chat-messages" id="chatMessages">
+        <!-- 欢迎消息 -->
+        <div class="chat-bubble chat-bubble--assistant">
+            <p>👋 你好！我是你的AI电影管家 <strong style="color: var(--gold-bright);">小影</strong>。</p>
+            <p style="margin-top: 6px;">告诉我你想看什么类型的电影，我会为你精准推荐。</p>
+        </div>
+
+        <!-- 快捷示例 -->
+        <div class="chat-examples" id="chatExamples">
+            <button class="chat-example-btn" onclick="sendExample('推荐几部类似《盗梦空间》的科幻悬疑片')">🤖 类似《盗梦空间》的科幻片</button>
+            <button class="chat-example-btn" onclick="sendExample('推荐评分最高的动画电影')">🎬 评分最高的动画电影</button>
+            <button class="chat-example-btn" onclick="sendExample('我想看轻松搞笑的喜剧片')">😄 轻松搞笑的喜剧片</button>
+            <button class="chat-example-btn" onclick="sendExample('推荐诺兰导演的代表作')">🎥 诺兰导演的代表作</button>
+        </div>
+    </div>
+
+    <!-- 正在输入指示器 -->
+    <div class="chat-typing" id="chatTyping">
+        小影正在为你寻找电影...
+    </div>
+
+    <!-- 输入区 -->
+    <div class="chat-input-area">
+        <input
+            type="text"
+            id="chatInput"
+            class="chat-input"
+            placeholder="描述你想看的电影..."
+            autocomplete="off"
+            onkeydown="if(event.key==='Enter') sendMessage()"
+        >
+        <button class="chat-send-btn" id="chatSendBtn" onclick="sendMessage()" aria-label="发送">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="22" y1="2" x2="11" y2="13"/>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/chat.js"></script>
+{% endblock %}

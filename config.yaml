@@ -23,8 +23,11 @@ data:
     local_path: "data/raw/imdb"
   tmdb:
     api_base: "https://api.themoviedb.org/3"
+    image_base: "https://image.tmdb.org/t/p"
     cache_path: "data/raw/tmdb_cache.json"
     request_delay: 0.25  # seconds between API calls
+    region: "CN"         # 观看提供商默认区域
+    proxy: ""            # 代理地址，如 "http://127.0.0.1:7890"（留空则用系统代理/环境变量）
 
 # ---- 预处理参数 ----
 preprocessing:
@@ -119,12 +122,19 @@ evaluation:
     - "precision"
     - "recall"
 
-# ---- UI 配置 ----
+# ---- UI 配置 (Gradio) ----
 ui:
   title: "🎬 智能电影推荐助手"
   host: "127.0.0.1"
   port: 7860
   share: false
+
+# ---- Web 配置 (CinemaScope FastAPI) ----
+web:
+  title: "CinemaScope"
+  subtitle: "AI-Powered Movie Discovery"
+  host: "127.0.0.1"
+  port: 8000
 
 # ---- 日志 ----
 logging:

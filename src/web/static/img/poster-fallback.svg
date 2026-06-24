@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 300" fill="none">
+  <rect width="200" height="300" fill="#1a1a1a" rx="8"/>
+  <text x="100" y="140" text-anchor="middle" font-size="40" fill="#c9a96e" opacity="0.6">🎬</text>
+  <text x="100" y="175" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="#666">No Poster</text>
+</svg>

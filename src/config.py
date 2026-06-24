@@ -4,6 +4,23 @@ import yaml
 from pathlib import Path
 from typing import Any, Dict
 
+# 加载 .env 文件（如果存在）
+_env_path = Path(__file__).resolve().parent.parent / ".env"
+if _env_path.exists():
+    try:
+        from dotenv import load_dotenv
+        load_dotenv(_env_path)
+    except ImportError:
+        # 无 dotenv 包时手动解析 .env
+        with open(_env_path, "r", encoding="utf-8") as _f:
+            for _line in _f:
+                _line = _line.strip()
+                if _line and not _line.startswith("#") and "=" in _line:
+                    _key, _, _val = _line.partition("=")
+                    _key, _val = _key.strip(), _val.strip()
+                    if _key and _key not in os.environ:
+                        os.environ[_key] = _val
+
 
 class Config:
     """配置单例"""

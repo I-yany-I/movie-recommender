@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% import "components/movie_card.jinja" as mc %}
+
+{% block title %}CinemaScope — 发现你的下一部心仪电影{% endblock %}
+
+{% block content %}
+<!-- Hero区域 -->
+<section class="hero">
+    <div class="hero__icon">🎬</div>
+    <h1 class="hero__title">发现你的下一部<br>心仪电影</h1>
+    <p class="hero__subtitle">AI驱动的智能电影推荐，让每部电影都值得观看</p>
+    <div class="hero__search">
+        <form action="/search" method="get" class="hero__search-form">
+            <input
+                type="text"
+                name="q"
+                class="hero__search-input"
+                placeholder="输入电影名、类型或关键词..."
+                autocomplete="off"
+                autofocus
+            >
+            <button type="submit" class="hero__search-btn" aria-label="搜索">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="M21 21l-4.35-4.35"/>
+                </svg>
+            </button>
+        </form>
+    </div>
+</section>
+
+<!-- 热门电影推荐 -->
+<section class="section">
+    <div class="section__header">
+        <h2 class="section__title"><span class="section__title-accent">★</span> 热门推荐</h2>
+        <a href="/search?q=" class="section__link">浏览全部 →</a>
+    </div>
+    <div class="section__inner">
+        <div class="movie-grid">
+            {% for card in popular %}
+                {{ mc.movie_card(card) }}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- 类型浏览 -->
+{% if genres %}
+<section class="section">
+    <div class="section__header">
+        <h2 class="section__title">探索类型</h2>
+    </div>
+    <div class="section__inner">
+        <div class="genre-tags">
+            {% for genre in genres %}
+            <a href="/search?q={{ genre }}" class="genre-tag">{{ genre }}</a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- AI对话入口 -->
+<section class="section">
+    <div class="section__header">
+        <h2 class="section__title"><span class="section__title-accent">💬</span> AI智能推荐</h2>
+    </div>
+    <div class="section__inner text-center">
+        <p style="color: var(--text-secondary); margin-bottom: 20px; max-width: 500px; margin-left: auto; margin-right: auto;">
+            不确定想看什么？告诉AI你的观影偏好，让它为你精准推荐。
+        </p>
+        <a href="/chat" class="btn btn--primary">开始对话推荐</a>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// 首页Hero搜索框自动聚焦动画
+document.addEventListener('DOMContentLoaded', function() {
+    const input = document.querySelector('.hero__search-input');
+    if (input) {
+        setTimeout(() => input.focus(), 500);
+    }
+});
+</script>
+{% endblock %}

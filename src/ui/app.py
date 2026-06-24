@@ -37,7 +37,7 @@ def create_chat_interface():
     conv_agent = ConversationAgent()
 
     def chat_fn(message, history):
-        """处理用户消息"""
+        """处理用户消息 — 流式输出"""
         # 将Gradio history格式转为内部格式
         internal_history = []
         for h in (history or []):
@@ -47,8 +47,11 @@ def create_chat_interface():
                 internal_history.append({"role": "user", "content": str(h[0])})
                 internal_history.append({"role": "assistant", "content": str(h[1])})
 
-        response = conv_agent.chat(message, internal_history)
-        return response
+        # 流式输出 — Gradio 自动逐字显示
+        full_response = ""
+        for token in conv_agent.chat_stream(message, internal_history):
+            full_response += token
+            yield full_response
 
     examples = [
         "推荐几部类似《盗梦空间》的科幻悬疑片",
@@ -73,7 +76,7 @@ def create_chat_interface():
 
     chat = gr.ChatInterface(
         fn=chat_fn,
-        chatbot=gr.Chatbot(height=500, bubble_full_width=False),
+        chatbot=gr.Chatbot(height=500),
         textbox=gr.Textbox(
             placeholder="输入你想看的电影类型、风格、或参考电影...",
             container=False,
@@ -83,7 +86,6 @@ def create_chat_interface():
         description="",
         examples=examples,
         cache_examples=False,
-        theme="soft",
     )
 
     return chat
@@ -171,17 +173,17 @@ def create_data_insights():
         ratings = pd.read_parquet(ratings_path)
 
         with gr.Row():
-            gr.Metric("评分总数", f"{len(ratings):,}")
-            gr.Metric("用户数", f"{ratings['user_idx'].nunique():,}")
-            gr.Metric("电影数", f"{ratings['movie_idx'].nunique():,}")
+            gr.Textbox(label="评分总数", value=f"{len(ratings):,}", interactive=False)
+            gr.Textbox(label="用户数", value=f"{ratings['user_idx'].nunique():,}", interactive=False)
+            gr.Textbox(label="电影数", value=f"{ratings['movie_idx'].nunique():,}", interactive=False)
 
         with gr.Row():
-            gr.Metric("平均评分", f"{ratings['rating'].mean():.2f}")
-            gr.Metric("评分标准差", f"{ratings['rating'].std():.2f}")
+            gr.Textbox(label="平均评分", value=f"{ratings['rating'].mean():.2f}", interactive=False)
+            gr.Textbox(label="评分标准差", value=f"{ratings['rating'].std():.2f}", interactive=False)
             sparsity = 1 - len(ratings) / (
                 ratings["user_idx"].nunique() * ratings["movie_idx"].nunique()
             )
-            gr.Metric("矩阵稀疏度", f"{sparsity:.3%}")
+            gr.Textbox(label="矩阵稀疏度", value=f"{sparsity:.3%}", interactive=False)
 
     # 热门电影展示
     gr.Markdown("### 🔥 热门电影 Top 10")
@@ -299,8 +301,6 @@ def launch_ui():
 
     with gr.Blocks(
         title=ui_config.get("title", "🎬 智能电影推荐助手"),
-        theme=gr.themes.Soft(),
-        css=custom_css,
     ) as app:
         gr.Markdown(
             """# 🎬 基于多智能体协同的电影推荐系统
@@ -326,6 +326,8 @@ def launch_ui():
         server_name=ui_config.get("host", "127.0.0.1"),
         server_port=ui_config.get("port", 7860),
         share=ui_config.get("share", False),
+        theme=gr.themes.Soft(),
+        css=custom_css,
     )
 
 

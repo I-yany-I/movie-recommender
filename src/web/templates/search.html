@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% import "components/movie_card.jinja" as mc %}
+
+{% block title %}{% if query %}搜索: {{ query }} — {% endif %}CinemaScope{% endblock %}
+
+{% block content %}
+<section class="search-page">
+    <div class="search-page__header">
+        {% if query %}
+        <h1 class="search-page__title">"{{ query }}" 的搜索结果</h1>
+        <p class="search-page__count">找到 {{ total }} 部电影</p>
+        {% else %}
+        <h1 class="search-page__title">浏览电影库</h1>
+        <p class="search-page__count">输入关键词开始搜索</p>
+        {% endif %}
+    </div>
+
+    {% if results %}
+    <div class="movie-grid">
+        {% for card in results %}
+            {{ mc.movie_card(card) }}
+        {% endfor %}
+    </div>
+    {% elif query %}
+    <div class="search-page__empty">
+        <div class="search-page__empty-icon">🔍</div>
+        <p>未找到与 "{{ query }}" 相关的电影</p>
+        <p style="margin-top: 8px;">试试其他关键词，如导演名、演员名或类型</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

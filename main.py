@@ -95,6 +95,19 @@ def cmd_ui(args):
     launch_ui()
 
 
+def cmd_serve(args):
+    """启动FastAPI Web服务器（CinemaScope暗金影院UI）"""
+    import uvicorn
+    from src.api.main import create_app
+
+    app = create_app()
+    host = args.host or Config.get("web.host", "127.0.0.1")
+    port = args.port or Config.get("web.port", 8000)
+
+    print(f"\n  CinemaScope server starting at http://{host}:{port}")
+    uvicorn.run(app, host=host, port=port, log_level="info")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="🎬 多智能体协同电影推荐系统",
@@ -117,6 +130,9 @@ Examples:
     train_parser.add_argument("--model", default="all", help="模型名称或'all'")
     subparsers.add_parser("pipeline", help="运行完整Agent流水线")
     subparsers.add_parser("ui", help="启动Gradio Web界面")
+    serve_parser = subparsers.add_parser("serve", help="启动CinemaScope Web服务器")
+    serve_parser.add_argument("--host", default="127.0.0.1", help="绑定地址")
+    serve_parser.add_argument("--port", type=int, default=8000, help="端口号")
 
     args = parser.parse_args()
     if args.command is None:
@@ -129,6 +145,7 @@ Examples:
         "train": cmd_train,
         "pipeline": cmd_pipeline,
         "ui": cmd_ui,
+        "serve": cmd_serve,
     }
     commands[args.command](args)
 

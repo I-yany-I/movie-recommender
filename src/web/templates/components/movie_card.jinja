@@ -1,0 +1,23 @@
+{# 可复用的电影卡片组件 #}
+{% macro movie_card(card) %}
+<a href="/movie/{{ card.movie_idx }}" class="movie-card">
+    <div class="movie-card__poster-wrap">
+        {% if card.poster_url %}
+        <img class="movie-card__poster" src="{{ card.poster_url }}" alt="{{ card.title }}" loading="lazy">
+        {% else %}
+        <div class="movie-card__poster--fallback">🎬</div>
+        {% endif %}
+        {% if card.rating %}
+        <span class="movie-card__rating-badge">★ {{ "%.1f"|format(card.rating) }}</span>
+        {% endif %}
+    </div>
+    <div class="movie-card__info">
+        <h3 class="movie-card__title">{{ card.title }}</h3>
+        <div class="movie-card__meta">
+            {% if card.year %}<span class="movie-card__year">{{ card.year }}</span>{% endif %}
+            {% if card.genres %}<span class="movie-card__genres">{{ card.genres }}</span>{% endif %}
+            {% if card.similarity %}<span class="movie-card__similarity">{{ "%.0f"|format(card.similarity * 100) }}% match</span>{% endif %}
+        </div>
+    </div>
+</a>
+{% endmacro %}

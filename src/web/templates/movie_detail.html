@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+{% import "components/movie_card.jinja" as mc %}
+
+{% block title %}{{ movie.title }} — CinemaScope{% endblock %}
+
+{% block content %}
+<div class="movie-detail">
+    <!-- Hero区域 -->
+    <div class="movie-hero">
+        {% if movie.backdrop_url %}
+        <img class="movie-hero__backdrop" src="{{ movie.backdrop_url }}" alt="" aria-hidden="true">
+        {% endif %}
+
+        <!-- 海报 -->
+        {% if movie.poster_url %}
+        <img class="movie-hero__poster" src="{{ movie.poster_url }}" alt="{{ movie.title }}">
+        {% else %}
+        <div class="movie-hero__poster--fallback">🎬</div>
+        {% endif %}
+
+        <!-- 信息 -->
+        <div class="movie-hero__info">
+            <h1 class="movie-hero__title">{{ movie.title }}</h1>
+
+            {% if movie.tagline %}
+            <p class="movie-hero__tagline">"{{ movie.tagline }}"</p>
+            {% endif %}
+
+            <div class="movie-hero__meta-row">
+                {% if movie.year %}<span>{{ movie.year }}</span>{% endif %}
+                {% if movie.runtime %}<span class="movie-hero__meta-sep">·</span> <span>{{ movie.runtime }} min</span>{% endif %}
+                {% if movie.genres %}<span class="movie-hero__meta-sep">·</span> <span>{{ movie.genres }}</span>{% endif %}
+            </div>
+
+            {% if movie.rating %}
+            <div class="movie-hero__rating">
+                <span class="movie-hero__rating-star">★</span>
+                <span class="movie-hero__rating-value">{{ "%.1f"|format(movie.rating) }}</span>
+                {% if movie.vote_count %}
+                <span class="movie-hero__rating-count">({{ movie.vote_count }} 票)</span>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {% if movie.director %}
+            <div class="movie-hero__meta-row">
+                <span>导演: <strong style="color: var(--text-primary);">{{ movie.director }}</strong></span>
+            </div>
+            {% endif %}
+
+            <div class="movie-hero__genres">
+                {% for g in movie.genres.replace('|', ',').replace('，', ',').split(',') %}
+                    {% if g.strip() %}
+                    <span class="movie-hero__genre-tag">{{ g.strip() }}</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <div class="movie-hero__links">
+                {% if movie.imdb_url %}
+                <a href="{{ movie.imdb_url }}" target="_blank" rel="noopener" class="movie-hero__external-link">
+                    IMDB
+                </a>
+                {% endif %}
+                {% if movie.tmdb_url %}
+                <a href="{{ movie.tmdb_url }}" target="_blank" rel="noopener" class="movie-hero__external-link">
+                    TMDB
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab导航 -->
+    <div class="detail-tabs" role="tablist">
+        <button class="detail-tab detail-tab--active" data-tab="overview" role="tab">概述</button>
+        {% if movie.cast %}
+        <button class="detail-tab" data-tab="cast" role="tab">演员</button>
+        {% endif %}
+        {% if movie.trailers %}
+        <button class="detail-tab" data-tab="trailers" role="tab">预告片</button>
+        {% endif %}
+        {% if movie.watch_providers or movie.external_watch_links %}
+        <button class="detail-tab" data-tab="watch" role="tab">在哪里看</button>
+        {% endif %}
+    </div>
+
+    <!-- Tab: 概述 -->
+    <div class="detail-tab-content detail-tab-content--active" id="tab-overview">
+        {% if movie.overview %}
+        <p class="overview-text">{{ movie.overview }}</p>
+        {% elif movie.overview_short %}
+        <p class="overview-text">{{ movie.overview_short }}</p>
+        {% else %}
+        <p class="overview-text" style="color: var(--text-muted); font-style: italic;">
+            暂无概述信息。查看外部链接了解更多。
+        </p>
+        {% endif %}
+    </div>
+
+    <!-- Tab: 演员 -->
+    {% if movie.cast %}
+    <div class="detail-tab-content" id="tab-cast">
+        <div class="cast-grid">
+            {% for c in movie.cast %}
+            <div class="cast-card">
+                {% if c.profile_url %}
+                <img class="cast-card__photo" src="{{ c.profile_url }}" alt="{{ c.name }}" loading="lazy">
+                {% else %}
+                <div class="cast-card__photo--fallback">👤</div>
+                {% endif %}
+                <div class="cast-card__name">{{ c.name }}</div>
+                {% if c.character %}
+                <div class="cast-card__role">{{ c.character }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Tab: 预告片 -->
+    {% if movie.trailers %}
+    <div class="detail-tab-content" id="tab-trailers">
+        {% if movie.trailers|length > 0 %}
+        {% set main_trailer = movie.trailers[0] %}
+        <div class="trailer-main">
+            <iframe
+                src="{{ main_trailer.embed_url }}"
+                title="{{ main_trailer.name }}"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+            ></iframe>
+        </div>
+        {% endif %}
+
+        {% if movie.trailers|length > 1 %}
+        <div class="trailer-list">
+            {% for t in movie.trailers[1:] %}
+            <div class="trailer-thumb" onclick="switchTrailer('{{ t.embed_url }}', '{{ t.name }}')">
+                <strong>{{ t.name or t.type }}</strong>
+                {% if t.type %}<span style="color: var(--text-muted);"> · {{ t.type }}</span>{% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Tab: 在哪里看 -->
+    {% if movie.watch_providers or movie.external_watch_links %}
+    <div class="detail-tab-content" id="tab-watch">
+        <!-- A区: TMDB 提供商（可点击跳转） -->
+        {% if movie.watch_providers %}
+        {% for region, providers in movie.watch_providers.items() %}
+        <div class="provider-section">
+            <h3 class="provider-section__title">
+                {% if region == "CN" %}🇨🇳 中国大陆{% elif region == "US" %}🇺🇸 美国{% elif region == "HK" %}🇭🇰 香港{% else %}{{ region }}{% endif %}
+            </h3>
+
+            {% set region_link = providers.get("link", "") or movie.provider_watch_url or "" %}
+            {% set types = [("flatrate", "流媒体订阅"), ("rent", "租赁"), ("buy", "购买")] %}
+            {% for ptype, pname in types %}
+                {% if providers.get(ptype) %}
+                <div style="margin-bottom: 8px;">
+                    <span style="font-size: 0.8rem; color: var(--text-muted); margin-right: 8px;">{{ pname }}:</span>
+                    {% for p in providers[ptype] %}
+                    <a class="provider-item provider-item--clickable"
+                       href="{{ region_link }}"
+                       target="_blank" rel="noopener"
+                       title="在 TMDB 查看 {{ p.name }} 的观看链接">
+                        {% if p.logo_path %}
+                        <img class="provider-item__logo" src="https://image.tmdb.org/t/p/original{{ p.logo_path }}" alt="{{ p.name }}" loading="lazy">
+                        {% endif %}
+                        {{ p.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <!-- B区: 更多在线搜索 -->
+        {% if movie.external_watch_links %}
+        {% set categories = [
+            ("aggregator", "🔍 全网搜索"),
+            ("free", "🆓 免费平台"),
+            ("chinese", "🇨🇳 中文平台"),
+            ("public_domain", "📚 公共领域")
+        ] %}
+        {% for cat_key, cat_label in categories %}
+            {% set cat_links = [] %}
+            {% for link in movie.external_watch_links %}
+                {% if link.category == cat_key %}{% set _ = cat_links.append(link) %}{% endif %}
+            {% endfor %}
+            {% if cat_links %}
+            <div class="watch-links-section">
+                <h3 class="watch-links-section__title">{{ cat_label }}</h3>
+                <div class="watch-links-grid">
+                    {% for link in cat_links %}
+                    <a href="{{ link.url }}" target="_blank" rel="noopener" class="watch-link-btn">
+                        {% if link.icon %}<span>{{ link.icon }}</span>{% endif %}
+                        {{ link.label }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- 相似电影推荐 -->
+    {% if similar %}
+    <div class="similar-section">
+        <div class="section__header">
+            <h2 class="section__title">相似电影推荐</h2>
+        </div>
+        <div class="similar-scroll">
+            {% for card in similar %}
+                {{ mc.movie_card(card) }}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/movie_detail.js"></script>
+{% endblock %}

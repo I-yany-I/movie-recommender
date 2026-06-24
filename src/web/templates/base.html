@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CinemaScope — AI-Powered Movie Discovery{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,400&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    {% block head_extra %}{% endblock %}
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="nav" id="navbar">
+        <div class="nav__inner">
+            <a href="/" class="nav__brand">
+                <span class="nav__brand-icon">🎬</span>
+                CinemaScope
+            </a>
+            <div class="nav__search">
+                <form action="/search" method="get" class="nav__search-form">
+                    <input
+                        type="text"
+                        name="q"
+                        class="nav__search-input"
+                        placeholder="搜索电影…"
+                        autocomplete="off"
+                    >
+                    <button type="submit" class="nav__search-btn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/>
+                            <path d="M21 21l-4.35-4.35"/>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+            <div class="nav__links">
+                <a href="/" class="nav__link">首页</a>
+                <a href="/chat" class="nav__link">AI对话</a>
+                <a href="/about" class="nav__link">关于</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容 -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="footer__inner">
+            <div class="footer__brand">
+                <span class="footer__brand-icon">🎬</span>
+                <span>CinemaScope</span>
+            </div>
+            <p class="footer__desc">AI-Powered Movie Discovery · 基于多智能体协同的电影推荐系统</p>
+            <p class="footer__copy">© 2026 人工智能与大数据辅助决策课程项目</p>
+        </div>
+    </footer>
+
+    <script src="/static/js/main.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
