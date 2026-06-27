@@ -2,6 +2,7 @@
 
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.x-red.svg)](https://pytorch.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-teal.svg)](https://fastapi.tiangolo.com/)
 [![Gradio](https://img.shields.io/badge/Gradio-4.x-orange.svg)](https://www.gradio.app/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
@@ -20,27 +21,30 @@
 - 🔗 **三源数据融合** — MovieLens 25M + IMDB + TMDB
 - 🧠 **混合推荐引擎** — SVD++ / NCF / LightGCN / BERT / Ensemble
 - 📊 **全链路可解释** — 每条推荐附多维度推荐理由
-- 🖥️ **Web 交互界面** — 基于 Gradio 的对话式 UI
+- 🎨 **CinemaScope 暗金影院 Web** — FastAPI + Jinja2 构建的沉浸式电影探索体验
+- 🖥️ **Gradio 仪表盘** — 数据分析与模型对比的可视化界面
 
 ---
 
 ## 🏗️ 系统架构
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                  表现层 (Gradio Web UI)                   │
-│         💬对话推荐 │ 📊模型对比 │ 📈数据洞察              │
-├─────────────────────────────────────────────────────────┤
-│          对话智能体 (DeepSeek LLM + Function Calling)     │
-│              任务分解 → 分发 → 结果聚合                   │
-├────────────────┬──────────────────┬─────────────────────┤
-│   Data Agent   │  Modeling Agent  │  Analysis Agent     │
-│   数据采集清洗   │  模型训练评估     │  结果解读可视化      │
-├────────────────┴──────────────────┴─────────────────────┤
-│          模型层: SVD++ | NCF | LightGCN | BERT | Ensemble│
-├─────────────────────────────────────────────────────────┤
-│       数据层: MovieLens CSV | IMDB TSV | TMDB JSON        │
-└─────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│              表现层: CinemaScope Web + Gradio 仪表盘           │
+│     🎨 暗金影院 (FastAPI)  │  💬对话推荐  │  📊模型对比       │
+├──────────────────────────────────────────────────────────────┤
+│          服务层: MovieService / ChatService / TMDBService     │
+├──────────────────────────────────────────────────────────────┤
+│          对话智能体 (DeepSeek LLM + Function Calling)          │
+│              任务分解 → 分发 → 结果聚合                        │
+├────────────────┬──────────────────┬──────────────────────────┤
+│   Data Agent   │  Modeling Agent  │  Analysis Agent          │
+│   数据采集清洗   │  模型训练评估     │  结果解读可视化           │
+├────────────────┴──────────────────┴──────────────────────────┤
+│       模型层: SVD++ | NCF | LightGCN | BERT | Ensemble       │
+├──────────────────────────────────────────────────────────────┤
+│        数据层: MovieLens CSV | IMDB TSV | TMDB JSON           │
+└──────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -79,8 +83,9 @@ python main.py preprocess
 # 4. 训练模型（可选 all / svd / ncf / lightgcn / content_bert）
 python main.py train --model all
 
-# 5. 启动 Web UI
-python main.py ui
+# 5. 启动 Web 界面（二选一）
+python main.py serve              # CinemaScope 暗金影院 (http://127.0.0.1:8000)
+python main.py ui                 # Gradio 数据分析仪表盘 (http://127.0.0.1:7860)
 ```
 
 ### 方式三：快速体验（无需训练）
@@ -92,6 +97,23 @@ python setup.py --quick
 # 启动 UI（使用 Popularity 基线模型 + BERT 内容推荐）
 python main.py ui
 ```
+
+---
+
+## 🎨 CinemaScope 暗金影院
+
+启动 `python main.py serve` 后访问 http://127.0.0.1:8000 体验：
+
+| 页面 | 路径 | 功能 |
+|------|------|------|
+| 首页 | `/` | 热门推荐 + 类型探索 |
+| 搜索 | `/search?q=Inception` | 中英文模糊搜索 |
+| 电影详情 | `/movie/{id}` | 海报/概述/演职员 + **YouTube 预告片嵌入播放** + 流媒体提供商 |
+| AI 对话 | `/chat` | 自然语言对话推荐 + TMDB 富化电影卡片 |
+| 关于 | `/about` | 项目介绍与技术栈 |
+| API 文档 | `/docs` | Swagger UI — 8 个 REST 端点 |
+
+**设计**: 暗金影院风 (`#0a0a0a` 深黑 + `#c9a96e` 金色 + Playfair Display 字体)
 
 ---
 
@@ -142,7 +164,19 @@ movie-recommender/
 │   │   └── feature_engineer.py # 特征工程
 │   ├── evaluation/         # 评估指标
 │   │   └── metrics.py
-│   ├── ui/                 # Web UI
+│   ├── api/                # FastAPI 后端 (CinemaScope)
+│   │   ├── main.py             # 应用工厂 + lifespan
+│   │   ├── schemas.py          # Pydantic 模型
+│   │   └── routes/             # 电影/对话/推荐/页面路由
+│   ├── services/            # 业务服务层
+│   │   ├── tmdb_service.py     # TMDB API 封装 (16K+ 电影缓存)
+│   │   ├── movie_service.py    # 电影搜索/详情/相似/热门
+│   │   ├── chat_service.py     # 对话推荐 + 结构化卡片
+│   │   └── recommendation_service.py
+│   ├── web/                 # 暗金影院前端
+│   │   ├── templates/          # 6 个 Jinja2 模板
+│   │   └── static/             # CSS + JS + 图片
+│   ├── ui/                 # Gradio 仪表盘
 │   │   └── app.py
 │   ├── orchestrator.py     # Agent 编排器
 │   └── config.py           # 配置管理器
